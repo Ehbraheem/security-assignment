@@ -75,6 +75,24 @@ namespace :ptourist do
     end
   end
 
+  def create_museum title, organizer, members
+    things=Thing.all
+    museum = Museum.create!(title: title, description: Faker::Lorem.paragraphs.join, things: things)
+    organizer.add_role(Role::ORGANIZER, museum).save
+    m=members.map { |member|
+      unless (member.id==organizer.id || member.id==mike_user.id)
+        member.add_role(Role::MEMBER, museum).save
+        member
+      end
+    }.select {|r| r}
+    puts "added organizer for #{museum.title}: #{first_names([organizer])}"
+    puts "added members for #{museum.title}: #{first_names(m)}"
+    members.each do |mem|
+      puts "building visitors for #{museum.title} by #{organizer.name}"
+      Excursion.new(:museum=>museum, :user=>mem).save!
+    end
+  end
+
   desc "reset all data"
   task reset_all: [:users,:subjects] do
   end
@@ -139,6 +157,7 @@ namespace :ptourist do
      :lat=>39.2854217},
     ]
     create_thing thing, organizer, members, images
+    create_museum "Museum Roundhouse", organizer, members
 
     thing={:name=>"Baltimore Water Taxi",
     :description=>"The Water Taxi is more than a jaunt across the harbor; it’s a Baltimore institution and a way of life. Every day, thousands of residents and visitors not only rely on us to take them safely to their destinations, they appreciate our knowledge of the area and our courteous service. And every day, hundreds of local businesses rely on us to deliver customers to their locations.  We know the city. We love the city. We keep the city moving. We help keep businesses thriving. And most importantly, we offer the most unique way to see Baltimore and provide an unforgettable experience that keeps our passengers coming back again and again.",
@@ -354,6 +373,10 @@ Work up a sweat in our 24-hour StayFit Gym, which features Life Fitness® cardio
      :lat=>39.2858057
      }
     create_image organizer, image
+
+    create_museum "Nassau County Museum of Art", organizer, members
+    create_museum "Polish American Museum", organizer, members
+    create_museum "Queens County Farm Museum", organizer, members
 
     puts "#{Thing.count} things created and #{ThingImage.count("distinct thing_id")} with images"
     puts "#{Image.count} images created and #{ThingImage.count("distinct image_id")} for things"

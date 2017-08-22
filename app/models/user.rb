@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   has_many :roles, inverse_of: :user, dependent: :destroy
+  has_many :excursions, inverse_of: :user
 
   def has_role(role_list, mname=nil, mid=nil) 
     role_names=roles.relevant(mname, mid).map {|r| r.role_name}

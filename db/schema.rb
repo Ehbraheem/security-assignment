@@ -11,10 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170130051702) do
+ActiveRecord::Schema.define(version: 20170822022317) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "excursions", force: :cascade do |t|
+    t.integer  "user_id",    null: false
+    t.integer  "museum_id",  null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "excursions", ["museum_id"], name: "index_excursions_on_museum_id", using: :btree
+  add_index "excursions", ["user_id"], name: "index_excursions_on_user_id", using: :btree
 
   create_table "foos", force: :cascade do |t|
     t.string   "name",       null: false
@@ -30,6 +40,15 @@ ActiveRecord::Schema.define(version: 20170130051702) do
   end
 
   add_index "images", ["creator_id"], name: "index_images_on_creator_id", using: :btree
+
+  create_table "museums", force: :cascade do |t|
+    t.string   "title"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "description"
+  end
+
+  add_index "museums", ["title"], name: "index_museums_on_title", using: :btree
 
   create_table "roles", force: :cascade do |t|
     t.integer  "user_id",    null: false
@@ -64,8 +83,10 @@ ActiveRecord::Schema.define(version: 20170130051702) do
     t.text     "notes"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+    t.integer  "museum_id"
   end
 
+  add_index "things", ["museum_id"], name: "index_things_on_museum_id", using: :btree
   add_index "things", ["name"], name: "index_things_on_name", using: :btree
 
   create_table "users", force: :cascade do |t|
@@ -97,7 +118,10 @@ ActiveRecord::Schema.define(version: 20170130051702) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   add_index "users", ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true, using: :btree
 
+  add_foreign_key "excursions", "museums"
+  add_foreign_key "excursions", "users"
   add_foreign_key "roles", "users"
   add_foreign_key "thing_images", "images"
   add_foreign_key "thing_images", "things"
+  add_foreign_key "things", "museums"
 end

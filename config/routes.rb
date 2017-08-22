@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  
   get 'authn/whoami', defaults: {format: :json}
   get 'authn/checkme'
 
@@ -12,6 +13,14 @@ Rails.application.routes.draw do
       post "thing_images",  controller: :thing_images, action: :create
       get "thing_images",  controller: :thing_images, action: :image_things
       get "linkable_things",  controller: :thing_images, action: :linkable_things
+    end
+    resources :museums, except: [:new, :edit] do
+      get "artifacts", controller: :museums, action: :museum_things
+      post "artifacts", controller: :museums, action: :add_thing
+      get "artifacts/:id", controller: :museums, action: :museum_thing
+
+      resources :excursion, only: [:index, :new, :show]
+
     end
     resources :things, except: [:new, :edit] do
       resources :thing_images, only: [:index, :create, :update, :destroy]
