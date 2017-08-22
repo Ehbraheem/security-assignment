@@ -17,9 +17,11 @@ namespace :ptourist do
     end
     "#{first_name} #{last_name}".titleize
   end
+  
   def user_email first_name
     "#{first_name}@bbunch.org"
   end
+
   def get_user first_name
     User.find_by(:email=>user_email(first_name))
   end
