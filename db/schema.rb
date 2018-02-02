@@ -37,9 +37,12 @@ ActiveRecord::Schema.define(version: 20170822022317) do
     t.integer  "creator_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float    "lng"
+    t.float    "lat"
   end
 
   add_index "images", ["creator_id"], name: "index_images_on_creator_id", using: :btree
+  add_index "images", ["lng", "lat"], name: "index_images_on_lng_and_lat", using: :btree
 
   create_table "museums", force: :cascade do |t|
     t.string   "title"
