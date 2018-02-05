@@ -1,8 +1,7 @@
 class MuseumPolicy < ApplicationPolicy
 
   def index?
-    # @user
-    true
+    @user
   end
 
   def show?
