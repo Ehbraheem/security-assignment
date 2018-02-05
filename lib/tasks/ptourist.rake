@@ -90,8 +90,7 @@ namespace :ptourist do
   end
 
   def create_museum title, organizer, members
-    things=Thing.all
-    museum = Museum.create!(title: title, description: Faker::Lorem.paragraphs.join, things: things)
+    museum = Museum.create!(title: title, description: Faker::Lorem.paragraphs.join)
     organizer.add_role(Role::ORGANIZER, museum).save
     m=members.map { |member|
       unless (member.id==organizer.id || member.id==mike_user.id)
@@ -391,6 +390,11 @@ Work up a sweat in our 24-hour StayFit Gym, which features Life Fitness® cardio
     create_museum "Nassau County Museum of Art", organizer, members
     create_museum "Polish American Museum", organizer, members
     create_museum "Queens County Farm Museum", organizer, members
+
+    Museum.all.map { |m| 
+      things=Thing.all
+      things.sample(3).map { |th| th.museum_id = m.id; th.save! }
+     }
 
     puts "#{Thing.count} things created and #{ThingImage.count("distinct thing_id")} with images"
     puts "#{Image.count} images created and #{ThingImage.count("distinct image_id")} for things"
