@@ -15,10 +15,6 @@
       url: "/subjects",
       templateUrl: APP_CONFIG.subjects_page_html
     })
-    .state("place", {
-      url: "/places",
-      templateUrl: APP_CONFIG.places_page_html
-    })
     .state("accountSignup",{
       url: "/signup",
       templateUrl: APP_CONFIG.signup_page_html
