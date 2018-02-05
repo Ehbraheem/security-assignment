@@ -14,20 +14,29 @@
     var subjectsResource = $resource(APP_CONFIG.server_url + "/api/subjects",{},{
       query: { cache:false, isArray:true }
     });
+    var museumsResource = $resource(APP_CONFIG.server_url + "/api/museums",{},{
+      query: { cache:false, isArray:true }
+    });
     var service = this;
     service.version = 0;
     service.images = [];
     service.imageIdx = null;
     service.things = [];
     service.thingIdx = null;
+    service.museums = [];
+    service.museumIdx = null;
     service.refresh = refresh;
     service.isCurrentImageIndex = isCurrentImageIndex;
     service.isCurrentThingIndex = isCurrentThingIndex;
+    service.isCurrentMuseumIndex = isCurrentMuseumIndex;
     service.nextThing = nextThing;
     service.previousThing = previousThing;
+    service.nextMuseum = nextMuseum;
+    service.previousMuseum = previousMuseum;
 
     //refresh();
     $rootScope.$watch(function(){ return currentOrigin.getVersion(); }, refresh);
+    $rootScope.$watch(() => service.getCurrentMuseumId(), refresh)
     return;
     ////////////////
     function refresh() {      
@@ -45,9 +54,11 @@
       console.log("refresh",params);
 
       var p1=refreshImages(params);
-      params["subject"]="thing";      
+      params["subject"]="thing";
+      params["museum_id"]=service.getCurrentMuseumId();  
       var p2=refreshThings(params);
-      $q.all([p1,p2]).then(
+      var p3=refreshMuseums(params)
+      $q.all([p3,p1,p2]).then(
         function(){
           service.setCurrentImageForCurrentThing();
         });      
@@ -79,6 +90,21 @@
         });
       return result.$promise;
     }
+    function refreshMuseums(params) {
+      var result=museumsResource.query(params);
+      result.$promise.then(
+        function(museums){
+          service.museums=museums;
+          console.clear();
+          console.log(museums)
+          service.version += 1;
+          if (!service.museumIdx || service.museumIdx > museums.length) {
+            service.museumIdx=0;
+          }
+          console.log("refreshMuseums", service);
+        });
+      return result.$promise;
+    }
 
     function isCurrentImageIndex(index) {
       //console.log("isCurrentImageIndex", index, service.imageIdx === index);
@@ -87,6 +113,10 @@
     function isCurrentThingIndex(index) {
       //console.log("isCurrentThingIndex", index, service.thingIdx === index);
       return service.thingIdx === index;
+    }
+    function isCurrentMuseumIndex(index) {
+      //console.log("isCurrentThingIndex", index, service.thingIdx === index);
+      return service.museumIdx === index;
     }
     function nextThing() {
       if (service.thingIdx !== null) {
@@ -101,6 +131,20 @@
       } else if (service.things.length >= 1) {
         service.setCurrentThing(service.things.length-1);
       }
+    }
+    function nextMuseum() {
+      if (service.museumIdx !== null) {
+        service.setCurrentMuseum(service.museumIdx + 1);
+      } else if (service.museums.length >= 1) {
+        service.setCurrentMuseum(0);
+      }    
+    }
+    function previousMuseum() {
+      if (service.museumIdx !== null) {
+        service.setCurrentMuseum(service.museumIdx - 1);
+      } else if (service.museums.length >= 1) {
+        service.setCurrentMuseum(service.museums.length-1);
+      }
     }    
   }
 
@@ -113,6 +157,9 @@
   CurrentSubjects.prototype.getThings = function() {
     return this.things;
   }
+  CurrentSubjects.prototype.getMuseums = function() {
+    return this.museums;
+  }
   CurrentSubjects.prototype.getCurrentImageIndex = function() {
      return this.imageIdx;
   }
@@ -122,6 +169,9 @@
   CurrentSubjects.prototype.getCurrentThing = function() {
     return this.things.length > 0 ? this.things[this.thingIdx] : null;
   }
+  CurrentSubjects.prototype.getCurrentMuseum = function() {
+    return this.museums.length > 0 ? this.museums[this.museumIdx] : null;
+  }
   CurrentSubjects.prototype.getCurrentImageId = function() {
     var currentImage = this.getCurrentImage();
     return currentImage ? currentImage.image_id : null;
@@ -129,6 +179,10 @@
   CurrentSubjects.prototype.getCurrentThingId = function() {
     var currentThing = this.getCurrentThing();
     return currentThing ? currentThing.thing_id : null;
+  }
+  CurrentSubjects.prototype.getCurrentMuseumId = function() {
+    var currentMuseum = this.getCurrentMuseum();
+    return currentMuseum ? currentMuseum.id : null;
   }
 
 
@@ -164,6 +218,19 @@
 
     console.log("setCurrentThing", this.thingIdx, this.getCurrentThing());
     return this.getCurrentThing();
+  }
+
+  CurrentSubjects.prototype.setCurrentMuseum = function(index) {
+    if (index >= 0 && this.museums.length > 0) {
+      this.museumIdx = (index < this.museums.length) ? index : 0;
+    } else if (index < 0 && this.museums.length > 0) {
+      this.museumIdx = this.museums.length - 1;
+    } else {
+      this.museumIdx=null;
+    }
+
+    console.log("setCurrentMuseum", this.museumIdx, this.getCurrentMuseum());
+    return this.getCurrentMuseum();
   }
 
   CurrentSubjects.prototype.setCurrentThingForCurrentImage = function() {
@@ -229,6 +296,21 @@
     }
     if (!found) {
       this.setCurrentThing(null, true);      
+    }    
+  }
+  CurrentSubjects.prototype.setCurrentMuseumId = function(museum_id) {
+    var found=this.getCurrentMuseumId() === museum_id;
+    if (museum_id && !found) {
+      for (var i=0; i< this.museums.length; i++) {
+        if (this.museums[i].id === museum_id) {
+          this.setCurrentMuseum(i);
+          found=true;
+          break;
+        }
+      }
+    }
+    if (!found) {
+      this.setCurrentMuseum(null);      
     }    
   }
   CurrentSubjects.prototype.setCurrentSubjectId = function(thing_id, image_id) {

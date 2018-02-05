@@ -44,7 +44,9 @@ class ThingImagesController < ApplicationController
     eTag="#{Digest::MD5.hexdigest(state)}"
 
     if stale?  :etag=>eTag
-      @thing_images=ThingImage.within_range(@origin, miles, reverse)
+      # byebug
+      museum_id = params[:museum_id] || 4
+      @thing_images=ThingImage.within_range(@origin, museum_id, miles, reverse)
         .with_name
         .with_caption
         .with_position

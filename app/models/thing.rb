@@ -7,4 +7,7 @@ class Thing < ActiveRecord::Base
 
   scope :not_linked, ->(image) { where.not(:id=>ThingImage.select(:thing_id)
                                                           .where(:image=>image)) }
+
+  scope :museum_artifacts, ->(museum_id) { where(museum_id: museum_id) }
+
 end

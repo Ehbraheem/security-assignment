@@ -35,7 +35,7 @@
     vm.$postLink = function() {
       $scope.$watch(
         function() { return currentSubjects.getMuseums(); }, 
-        function(museums) { vm.museums = museums; }
+        function(museums) { console.clear; console.log(museums);vm.museums = museums; }
       );
     }    
     return;
@@ -70,10 +70,11 @@
     return;
     //////////////
     function newMuseum(link) {
+      console.log("link Museum", link);
       vm.link = link; 
       vm.museum = null;
-      if (link && link.museum_id) {
-        vm.museum=Museum.get({id:link.museum_id});
+      if (link && link.id) {
+        vm.museum=Museum.get({id:link.id});
       }
     }
 
