@@ -1,0 +1,60 @@
+<form class="museum-form row" name="museumform">
+  <span class="museum_id id">{{$ctrl.item.id}}</span>
+  <span class="invalid">{{$ctrl.item.errors.full_messages}}</span>
+
+  <div class="museum-name row col-lg-12">
+    <label class="col-xs-3">Title:</label>
+    <input class="col-xs-9"
+           name="museum-name" 
+           data-ng-model="$ctrl.item.title" 
+           ng-readonly="!$ctrl.authz.canUpdate"
+           required="required"
+           maxlength="40"
+           pattern=".{3,}" title="3 character minimum for Name"/>
+    <span class="invalid">{{$ctrl.item.errors.title}}</span>
+  </div>
+
+  <div class="museum-desc row col-lg-12"
+       ng-show="museumform.$valid">
+    <label class="col-xs-3">Description:</label>
+    <textarea class="col-xs-9"
+           name="museum-desc" 
+           ng-model="$ctrl.item.description" 
+           ng-readonly="!$ctrl.authz.canUpdate"
+           type="text"
+           size="80"
+           maxlength="4000"/>
+    <span class="invalid">{{$ctrl.item.errors.description}}</span>
+  </div>
+
+  <div class="museum-controls"
+       ng-show="$ctrl.authz.authenticated">
+    <button ng-show="!$ctrl.item.id && $ctrl.authz.canCreate"
+            name="museum-create"
+            ng-disabled="museumform.$invalid"
+            type="submit"
+            ng-click="$ctrl.create()">Create museum</button>
+
+    <div ng-show="$ctrl.item.id">
+      <span class="museum-modify"
+            data-ng-hide="!$ctrl.authz.canUpdate &&
+                          !$ctrl.authz.canUpdateThing">
+        <button name="museum-update"
+                type="submit"          
+                ng-disabled="museumform.$invalid || !museumform.$dirty"
+                data-ng-hide="$ctrl.haveDirtyLinks() &&
+                  (!museumform['museum-title'].$dirty && 
+                   !museumform['museum-desc'].$dirty)"
+                ng-click="$ctrl.update()">Update museum</button>       
+      </span>
+
+      <button name="museum-delete"
+              type="submit"
+              ng-show="$ctrl.authz.canDelete" 
+              ng-click="$ctrl.remove()">Delete museum</button>
+      <button name="image-clear"
+              type="submit"
+              ng-click="$ctrl.clear()">Clear museum</button>
+    </div>
+  </div>
+</form>

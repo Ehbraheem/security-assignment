@@ -1,0 +1,14 @@
+<div class="thing-info">
+  <h4>{{$ctrl.link.title}}</h4>
+
+  <span class="id id">{{$ctrl.link.id}}</span>
+  <p>
+    <div class="description">{{$ctrl.link.description}}</div>
+  </p>
+
+  <span class="overlay glyphicon glyphicon-chevron-left"
+        ng-click="$ctrl.previousMuseum()"></span>
+
+  <span class="overlay glyphicon glyphicon-chevron-right"
+        ng-click="$ctrl.nextMuseum()"></span>
+</div>
